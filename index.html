@@ -338,7 +338,7 @@
   </div>
 
   <div class="controls">
-    <p class="hint">Arrow keys or WASD move the muncher — it eats whatever tile it steps on.</p>
+    <p class="hint">Arrow keys or WASD move the muncher. Wrong numbers are safe to cross — just watch out for Troggles!</p>
     <div class="dpad">
       <button class="up" id="btnUp" aria-label="Move up">▲</button>
       <button class="left" id="btnLeft" aria-label="Move left">◀</button>
@@ -558,7 +558,6 @@
         cell.flash = 'good';
         state.remaining--;
       } else {
-        state.lives--;
         cell.alive = false;
         cell.flash = 'bad';
       }
