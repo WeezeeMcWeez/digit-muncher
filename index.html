@@ -147,6 +147,10 @@
     color:var(--ink);
     transition:background 0.15s, border-color 0.15s, opacity 0.2s;
   }
+  .tile.equation{
+    font-size:clamp(11px, 3.4vw, 16px);
+    letter-spacing:-0.3px;
+  }
   .tile.eaten{
     background:transparent;
     border-color:rgba(255,255,255,0.18);
@@ -427,6 +431,8 @@
   }
 
   var LEVELS = [
+    { kind: 'equation', op: '+', aMin: 0, aMax: 9,  bMin: 0, bMax: 9,  target: 8, label: 'EQUATIONS THAT EQUAL 8' },
+    { kind: 'equation', op: '-', aMin: 0, aMax: 18, bMin: 0, bMax: 18, target: 6, label: 'EQUATIONS THAT EQUAL 6' },
     { label: 'MULTIPLES OF 3', range: 30, test: function(n){ return n % 3 === 0; } },
     { label: 'EVEN NUMBERS',   range: 40, test: function(n){ return n % 2 === 0; } },
     { label: 'FACTORS OF 24',  range: 24, test: function(n){ return 24 % n === 0; } },
@@ -477,25 +483,41 @@
 
   var CORNERS = [ {row:0,col:0}, {row:0,col:GRID_SIZE-1}, {row:GRID_SIZE-1,col:0}, {row:GRID_SIZE-1,col:GRID_SIZE-1} ];
 
-  function buildGrid(levelConfig){
+  function getPools(levelConfig){
     var correct = [], incorrect = [];
-    for (var n = 1; n <= levelConfig.range; n++){
-      (levelConfig.test(n) ? correct : incorrect).push(n);
+    if (levelConfig.kind === 'equation'){
+      for (var a = levelConfig.aMin; a <= levelConfig.aMax; a++){
+        var bLimit = levelConfig.op === '-' ? Math.min(a, levelConfig.bMax) : levelConfig.bMax;
+        for (var b = levelConfig.bMin; b <= bLimit; b++){
+          var result = levelConfig.op === '+' ? a + b : a - b;
+          var str = a + levelConfig.op + b;
+          (result === levelConfig.target ? correct : incorrect).push(str);
+        }
+      }
+    } else {
+      for (var n = 1; n <= levelConfig.range; n++){
+        (levelConfig.test(n) ? correct : incorrect).push(n);
+      }
     }
-    if (correct.length === 0) correct.push(levelConfig.range);
-    if (incorrect.length === 0) incorrect.push(1);
+    return { correct: correct, incorrect: incorrect };
+  }
+
+  function buildGrid(levelConfig){
+    var pools = getPools(levelConfig);
+    var correctPool = pools.correct.length ? pools.correct : pools.incorrect.slice(0, 1);
+    var incorrectPool = pools.incorrect.length ? pools.incorrect : pools.correct.slice(0, 1);
 
     var cells = [];
     for (var i = 0; i < CELL_COUNT; i++){
       var useCorrect = Math.random() < 0.42;
-      var pool = useCorrect ? correct : incorrect;
+      var pool = useCorrect ? correctPool : incorrectPool;
       var value = pool[Math.floor(Math.random() * pool.length)];
-      cells.push({ value: value, correct: levelConfig.test(value), alive: true, flash: null });
+      cells.push({ value: value, correct: useCorrect, alive: true, flash: null });
     }
     var hasCorrect = cells.some(function(c){ return c.correct; });
     if (!hasCorrect){
       var idx = Math.floor(Math.random() * CELL_COUNT);
-      var v = correct[Math.floor(Math.random() * correct.length)];
+      var v = correctPool[Math.floor(Math.random() * correctPool.length)];
       cells[idx] = { value: v, correct: true, alive: true, flash: null };
     }
     return cells;
@@ -559,7 +581,7 @@
       for (var c = 0; c < GRID_SIZE; c++){
         var cell = state.cells[idxOf(r, c)];
         var tile = document.createElement('div');
-        tile.className = 'tile' + (cell.alive ? '' : ' eaten') + (cell.flash ? ' flash-' + cell.flash : '');
+        tile.className = 'tile' + (state.levelConfig.kind === 'equation' ? ' equation' : '') + (cell.alive ? '' : ' eaten') + (cell.flash ? ' flash-' + cell.flash : '');
         tile.style.gridRow = (r + 1) + ' / span 1';
         tile.style.gridColumn = (c + 1) + ' / span 1';
         tile.textContent = cell.alive ? cell.value : '';
