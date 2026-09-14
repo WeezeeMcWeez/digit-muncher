@@ -288,10 +288,43 @@
     justify-content:center;
   }
   .dpad button:active{background:var(--panel-edge);}
-  .dpad button:focus-visible, .restart:focus-visible{
-    outline:2px solid var(--lime);
+  .dpad button:focus-visible, .restart:focus-visible, .munch-btn:focus-visible{
+    outline:2px solid var(--gold);
     outline-offset:2px;
   }
+
+  .action-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:20px;
+    flex-wrap:wrap;
+  }
+  .munch-btn{
+    width:88px;
+    height:88px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #ffe49a, var(--gold));
+    border:3px solid #fff1c2;
+    box-shadow:0 0 18px rgba(255,201,74,0.55);
+    color:#3a2a05;
+    font-family:var(--font-display);
+    font-size:13px;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+    line-height:1;
+  }
+  .munch-btn .key-hint{
+    font-family:var(--font-mono);
+    font-size:9px;
+    letter-spacing:1px;
+    color:#5c4310;
+  }
+  .munch-btn:active{transform:translateY(1px);}
   .dpad .up{grid-area:up;}
   .dpad .left{grid-area:left;}
   .dpad .down{grid-area:down;}
@@ -338,12 +371,15 @@
   </div>
 
   <div class="controls">
-    <p class="hint">Arrow keys or WASD move the muncher. Wrong numbers are safe to cross — just watch out for Troggles!</p>
-    <div class="dpad">
-      <button class="up" id="btnUp" aria-label="Move up">▲</button>
-      <button class="left" id="btnLeft" aria-label="Move left">◀</button>
-      <button class="down" id="btnDown" aria-label="Move down">▼</button>
-      <button class="right" id="btnRight" aria-label="Move right">▶</button>
+    <p class="hint">Arrow keys or WASD move — that's always safe. Press SPACE or tap MUNCH to eat the number you're standing on.</p>
+    <div class="action-row">
+      <div class="dpad">
+        <button class="up" id="btnUp" aria-label="Move up">▲</button>
+        <button class="left" id="btnLeft" aria-label="Move left">◀</button>
+        <button class="down" id="btnDown" aria-label="Move down">▼</button>
+        <button class="right" id="btnRight" aria-label="Move right">▶</button>
+      </div>
+      <button class="munch-btn" id="btnMunch" aria-label="Munch this number">MUNCH<span class="key-hint">SPACE</span></button>
     </div>
     <button class="restart" id="restartBtn">Restart Game</button>
   </div>
@@ -386,7 +422,8 @@
     btnUp: document.getElementById('btnUp'),
     btnDown: document.getElementById('btnDown'),
     btnLeft: document.getElementById('btnLeft'),
-    btnRight: document.getElementById('btnRight')
+    btnRight: document.getElementById('btnRight'),
+    btnMunch: document.getElementById('btnMunch')
   };
 
   var state = null;
@@ -542,7 +579,6 @@
     if (newRow === m.row && newCol === m.col) return;
     m.row = newRow;
     m.col = newCol;
-    state.chompTick++;
 
     var caughtByTroggle = state.troggles.some(function(t){ return t.row === newRow && t.col === newCol; });
     if (caughtByTroggle){
@@ -550,20 +586,26 @@
       return;
     }
 
-    var cell = state.cells[idxOf(newRow, newCol)];
-    if (cell.alive){
-      if (cell.correct){
-        state.score += 10;
-        cell.alive = false;
-        cell.flash = 'good';
-        state.remaining--;
-      } else {
-        cell.alive = false;
-        cell.flash = 'bad';
-      }
-      clearFlashesSoon();
-    }
+    render();
+  }
 
+  function munch(){
+    if (!state || state.transitioning || state.gameOver) return;
+    var cell = state.cells[idxOf(state.muncher.row, state.muncher.col)];
+    if (!cell.alive) return;
+    state.chompTick++;
+
+    if (cell.correct){
+      state.score += 10;
+      cell.alive = false;
+      cell.flash = 'good';
+      state.remaining--;
+    } else {
+      state.lives--;
+      cell.alive = false;
+      cell.flash = 'bad';
+    }
+    clearFlashesSoon();
     render();
 
     if (state.lives <= 0){
@@ -661,19 +703,21 @@
 
   document.addEventListener('keydown', function(e){
     var key = e.key;
-    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d','W','A','S','D'].indexOf(key) !== -1){
+    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d','W','A','S','D',' '].indexOf(key) !== -1){
       e.preventDefault();
     }
     if (key === 'ArrowUp' || key === 'w' || key === 'W') move(-1, 0);
     else if (key === 'ArrowDown' || key === 's' || key === 'S') move(1, 0);
     else if (key === 'ArrowLeft' || key === 'a' || key === 'A') move(0, -1);
     else if (key === 'ArrowRight' || key === 'd' || key === 'D') move(0, 1);
+    else if (key === ' ') munch();
   });
 
   els.btnUp.addEventListener('click', function(){ move(-1, 0); });
   els.btnDown.addEventListener('click', function(){ move(1, 0); });
   els.btnLeft.addEventListener('click', function(){ move(0, -1); });
   els.btnRight.addEventListener('click', function(){ move(0, 1); });
+  els.btnMunch.addEventListener('click', munch);
   els.restartBtn.addEventListener('click', restart);
 
   function start(saved){
