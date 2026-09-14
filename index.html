@@ -3,13 +3,13 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Baloo+2:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap">
 <style>
   :root{
-    --bg:#14172a;
-    --panel:#1e2440;
-    --panel-edge:#2a3159;
-    --tile:#2b3363;
-    --tile-edge:#404b86;
-    --ink:#eaf1ff;
-    --muted:#8a92c4;
+    --bg:#333d72;
+    --panel:#414c8c;
+    --panel-edge:#5c68b0;
+    --tile:#4b56a0;
+    --tile-edge:#707bd4;
+    --ink:#ffffff;
+    --muted:#c3c9ee;
     --lime:#b7f03e;
     --coral:#ff5d5d;
     --gold:#ffc94a;
@@ -23,7 +23,7 @@
     margin:0;
     min-height:100%;
     background:
-      radial-gradient(circle at 50% 0%, #1c2142 0%, var(--bg) 55%);
+      radial-gradient(circle at 50% 0%, #3c478a 0%, var(--bg) 55%);
     color:var(--ink);
     font-family:var(--font-body);
     display:flex;
@@ -34,7 +34,7 @@
   .cabinet{
     width:100%;
     max-width:520px;
-    background:linear-gradient(180deg,#22284a,#181b34);
+    background:linear-gradient(180deg,#454f92,#363f78);
     border:3px solid var(--panel-edge);
     border-radius:22px;
     padding:16px;
@@ -105,7 +105,7 @@
   .hud-item.lives span{color:var(--coral); font-size:12px; letter-spacing:0;}
   .life-row{display:flex; gap:4px;}
   .life-dot{width:9px; height:9px; border-radius:2px; background:var(--coral); box-shadow:0 0 6px rgba(255,93,93,0.7);}
-  .life-dot.spent{background:transparent; border:1px solid #4a4f7a; box-shadow:none;}
+  .life-dot.spent{background:transparent; border:1px solid #7d86c4; box-shadow:none;}
 
   .rule-banner{
     text-align:center;
@@ -149,8 +149,8 @@
   }
   .tile.eaten{
     background:transparent;
-    border-color:rgba(64,75,134,0.35);
-    opacity:0.35;
+    border-color:rgba(255,255,255,0.18);
+    opacity:0.45;
   }
   .tile.flash-good{background:rgba(183,240,62,0.35); border-color:var(--lime);}
   .tile.flash-bad{background:rgba(255,93,93,0.35); border-color:var(--coral);}
@@ -227,6 +227,7 @@
     .sprite{transition:none;}
   }
 
+  .message[hidden]{display:none;}
   .message{
     position:absolute;
     inset:0;
