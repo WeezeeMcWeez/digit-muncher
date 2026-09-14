@@ -230,7 +230,6 @@
     background:#1a1220;
     border-radius:2px;
     overflow:hidden;
-    transform:rotate(-45deg);
   }
   .troggle-teeth{
     position:absolute;
@@ -431,8 +430,10 @@
   }
 
   var LEVELS = [
-    { kind: 'equation', op: '+', aMin: 0, aMax: 9,  bMin: 0, bMax: 9,  target: 8, label: 'EQUATIONS THAT EQUAL 8' },
-    { kind: 'equation', op: '-', aMin: 0, aMax: 18, bMin: 0, bMax: 18, target: 6, label: 'EQUATIONS THAT EQUAL 6' },
+    { kind: 'equation', ops: ['+'],      aMin: 0, aMax: 9,  bMin: 0, bMax: 9,  target: 8,  label: 'EQUATIONS THAT EQUAL 8' },
+    { kind: 'equation', ops: ['+'],      aMin: 0, aMax: 18, bMin: 0, bMax: 18, target: 12, label: 'EQUATIONS THAT EQUAL 12' },
+    { kind: 'equation', ops: ['+', '-'], aMin: 0, aMax: 9,  bMin: 0, bMax: 9,  target: 5,  label: 'EQUATIONS THAT EQUAL 5' },
+    { kind: 'equation', ops: ['+', '-'], aMin: 0, aMax: 18, bMin: 0, bMax: 18, target: 10, label: 'EQUATIONS THAT EQUAL 10' },
     { label: 'MULTIPLES OF 3', range: 30, test: function(n){ return n % 3 === 0; } },
     { label: 'EVEN NUMBERS',   range: 40, test: function(n){ return n % 2 === 0; } },
     { label: 'FACTORS OF 24',  range: 24, test: function(n){ return 24 % n === 0; } },
@@ -486,14 +487,16 @@
   function getPools(levelConfig){
     var correct = [], incorrect = [];
     if (levelConfig.kind === 'equation'){
-      for (var a = levelConfig.aMin; a <= levelConfig.aMax; a++){
-        var bLimit = levelConfig.op === '-' ? Math.min(a, levelConfig.bMax) : levelConfig.bMax;
-        for (var b = levelConfig.bMin; b <= bLimit; b++){
-          var result = levelConfig.op === '+' ? a + b : a - b;
-          var str = a + levelConfig.op + b;
-          (result === levelConfig.target ? correct : incorrect).push(str);
+      levelConfig.ops.forEach(function(op){
+        for (var a = levelConfig.aMin; a <= levelConfig.aMax; a++){
+          var bLimit = op === '-' ? Math.min(a, levelConfig.bMax) : levelConfig.bMax;
+          for (var b = levelConfig.bMin; b <= bLimit; b++){
+            var result = op === '+' ? a + b : a - b;
+            var str = a + op + b;
+            (result === levelConfig.target ? correct : incorrect).push(str);
+          }
         }
-      }
+      });
     } else {
       for (var n = 1; n <= levelConfig.range; n++){
         (levelConfig.test(n) ? correct : incorrect).push(n);
