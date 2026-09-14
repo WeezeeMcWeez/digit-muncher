@@ -217,6 +217,33 @@
   .troggle-body::before{left:22%;}
   .troggle-body::after{left:56%;}
 
+  .troggle-mouth{
+    position:absolute;
+    left:14%;
+    right:14%;
+    top:54%;
+    height:34%;
+    background:#1a1220;
+    border-radius:2px;
+    overflow:hidden;
+    transform:rotate(-45deg);
+  }
+  .troggle-teeth{
+    position:absolute;
+    left:0;
+    right:0;
+    height:58%;
+    background:#fff6e8;
+  }
+  .troggle-teeth.top{
+    top:-6%;
+    clip-path:polygon(0 0, 100% 0, 100% 38%, 85% 100%, 70% 38%, 55% 100%, 40% 38%, 25% 100%, 10% 38%, 0 100%);
+  }
+  .troggle-teeth.bottom{
+    bottom:-6%;
+    clip-path:polygon(0 100%, 100% 100%, 100% 62%, 85% 0, 70% 62%, 55% 0, 40% 62%, 25% 0, 10% 62%, 0 0);
+  }
+
   @keyframes chompMouth{
     0%{height:40%;}
     50%{height:12%;}
@@ -552,7 +579,7 @@
       tEl.className = 'sprite troggle';
       tEl.style.gridRow = (t.row + 1) + ' / span 1';
       tEl.style.gridColumn = (t.col + 1) + ' / span 1';
-      tEl.innerHTML = '<div class="troggle-body"></div>';
+      tEl.innerHTML = '<div class="troggle-body"><div class="troggle-mouth"><div class="troggle-teeth top"></div><div class="troggle-teeth bottom"></div></div></div>';
       els.grid.appendChild(tEl);
     });
 
